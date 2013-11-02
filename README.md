@@ -24,6 +24,16 @@ source $CHGO_ROOT/share/chgo/auto.sh
 
 It'll look for `.go-version` files in your projects (or any parent directory) and automatically switch versions for you. We also support setting a global `$CHGO_ROOT/version` file for a default version to activate.
 
+#### Automatic installation of versions
+
+By default, if you request to `chgo` to an uninstalled version, `chgo` will try and install it for you (using the precompiled binaries from the official downloads site).
+
+If you find this behavior undesirable, you can disable it by setting:
+
+```
+CHGO_SKIP_AUTO_INSTALL=1
+```
+
 ## Uninstallation
 
 ```
