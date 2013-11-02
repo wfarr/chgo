@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+source "${0%/*}/../share/chgo/chgo.sh"
+
+case "$1" in
+        -h|--help)
+                echo "usage: chgo-exec GO -- COMMAND [ARGS...]"
+                exit
+                ;;
+        -V|--version)
+                echo "chgo version $CHGO_VERSION"
+                exit
+                ;;
+esac
+
+if (( $# == 0 )); then
+        echo "chgo-exec: GO and COMMAND required" >&2
+        exit 1
+fi
+
+argv=()
+
+for arg in $@; do
+        shift
+
+        if [[ "$arg" == "--" ]]; then break
+        else                          argv+=($arg)
+        fi
+done
+
+if (( $# == 0 )); then
+        echo "chgo-exec: COMMAND required" >&2
+        exit 1
+fi
+
+command="chgo $argv && $*"
+
+if [[ -t 0 ]]; then exec "$SHELL" -i -l -c "$command"
+else                exec "$SHELL"    -l -c "$command"
+fi
