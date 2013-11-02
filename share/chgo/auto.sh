@@ -19,18 +19,18 @@ function chgo_auto() {
     dir="${dir%/*}"
   done
 
-  if [[ -n "$GO_AUTO_VERSION" ]]; then
-    if { read -r version <"$CHGO_ROOT/version"; } 2>/dev/null; then
-      if [[ "$version" == "$GO_AUTO_VERSION" ]]; then return
-      else
-        GO_AUTO_VERSION="$version"
-        chgo "$version"
-        return $?
-      fi
+  if { read -r version <"$CHGO_ROOT/version"; } 2>/dev/null; then
+    if [[ "$version" == "$GO_AUTO_VERSION" ]]; then return
     else
-      chgo_reset
-      unset GO_AUTO_VERSION
+      GO_AUTO_VERSION="$version"
+      chgo "$version"
+      return $?
     fi
+  fi
+
+  if [[ -n "$GO_AUTO_VERSION" ]]; then
+    chgo_reset
+    unset GO_AUTO_VERSION
   fi
 }
 
