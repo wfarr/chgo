@@ -85,12 +85,13 @@ function chgo()
 
       if [ -z "$match" ]; then
         echo "chgo: $1 not installed, trying to install" >&2
-        chgo_install $1
 
-        for dir in "${GOES[@]}"; do
-          dir="${dir%%/}"
-          [[ "${dir##*/}" == *"$1"* ]] && match="$dir"
-        done
+        if [ -n "$CHGO_SKIP_AUTO_INSTALL" ]; then
+          return 1
+        else
+          chgo_install $1
+          match="$CHGO_ROOT/versions/$1"
+        fi
       fi
 
       shift
