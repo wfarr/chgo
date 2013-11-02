@@ -1,5 +1,7 @@
 unset GO_AUTO_VERSION
 
+: ${PREEXEC_FUNCTIONS:=""}
+
 function chgo_auto() {
   local dir="$PWD"
   local version
@@ -37,5 +39,11 @@ if [[ -n "$ZSH_VERSION" ]]; then
     preexec_functions+=("chgo_auto")
   fi
 elif [[ -n "$BASH_VERSION" ]]; then
-  trap '[[ "$BASH_COMMAND" != "$PROMPT_COMMAND" ]] && chgo_auto' DEBUG
+  if [[ -n "$PREEXEC_FUNCTIONS" ]]; then
+    PREEXEC_FUNCTIONS="${PREEXEC_FUNCTIONS}; [[ \"\$BASH_COMMAND\" != \"\$PROMPT_COMMAND\" ]] && chgo_auto"
+  else
+    PREEXEC_FUNCTIONS="[[ \"\$BASH_COMMAND\" != \"\$PROMPT_COMMAND\" ]] && chgo_auto"
+  fi
+
+  trap 'eval "$PREEXEC_FUNCTIONS"' DEBUG
 fi
