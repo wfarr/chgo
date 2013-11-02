@@ -12,21 +12,22 @@ function chgo_auto() {
         chgo "$version"
         return $?
       fi
-    elif { read -r version <"$CHGO_ROOT/version"; } 2>/dev/null; then
+
+    dir="${dir%/*}"
+  done
+
+  if [[ -n "$GO_AUTO_VERSION" ]]; then
+    if { read -r version <"$CHGO_ROOT/version"; } 2>/dev/null; then
         if [[ "$version" == "$GO_AUTO_VERSION" ]]; then return
         else
           GO_AUTO_VERSION="$version"
           chgo "$version"
           return $?
         fi
+    else
+      chgo_reset
+      unset GO_AUTO_VERSION
     fi
-
-    dir="${dir%/*}"
-  done
-
-  if [[ -n "$GO_AUTO_VERSION" ]]; then
-    chgo_reset
-    unset GO_AUTO_VERSION
   fi
 }
 
