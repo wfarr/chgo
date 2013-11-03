@@ -32,7 +32,24 @@ function chgo_install()
   else                                  arch="386"
   fi
 
-  (curl -v -f "https://go.googlecode.com/files/go${version}.${platform}-${arch}.tar.gz" | tar zxv --strip-components 1 -C $installdir; exit "${PIPESTATUS[0]}") 2>$logfile >$logfile || \
+  download_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}.tar.gz"
+
+  if [[ "$platform" = "darwin" ]]; then
+    OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
+
+    if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
+      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.6.tar.gz"
+    else
+      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.8.tar.gz"
+    fi
+  fi
+
+  ( \
+    ( \
+      (curl -v -f $download_url) || (curl -v -f $alternate_url) \
+    ) | \
+    tar zxv --strip-components 1 -C $installdir; exit "${PIPESTATUS[0]}" \
+  ) 2>$logfile >$logfile || \
     {
       rm -rf $installdir
 
