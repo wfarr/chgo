@@ -1,5 +1,4 @@
-CHGO_SH=$(ps -o command -p $$ | grep -q bash && echo $BASH_SOURCE[@] || echo $0)
-CHGO_ROOT=$(cd "$(dirname $CHGO_SH)"/../.. && pwd)
+CHGO_ROOT=$(cd "$(dirname ${BASH_SOURCE:-$_})"/../.. && pwd)
 CHGO_VERSION="0.3.7"
 GOES=()
 
