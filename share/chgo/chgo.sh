@@ -32,7 +32,7 @@ function chgo_install()
   else                                  arch="386"
   fi
 
-  # Default settings for new download location (1.3+)
+  # Default settings for new download location (1.2.2+)
   protocol="https"
   domain="storage.googleapis.com"
   path="golang"
@@ -46,7 +46,6 @@ function chgo_install()
 
   # Use older download location for versions <= 1.2.1
   if [[ $versioncomparator = 0 ]] || [[ $versioncomparator = 2 ]]; then
-    protocol="https"
     domain="go.googlecode.com"
     path="files"
   fi
