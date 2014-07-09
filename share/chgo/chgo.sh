@@ -32,17 +32,40 @@ function chgo_install()
   else                                  arch="386"
   fi
 
-  download_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}.tar.gz"
+  # Default settings for new download location (1.3+)
+  protocol="https"
+  domain="storage.googleapis.com"
+  path="golang"
+
+  # Check if we're using 1.2.1 or earlier which has a different download location
+  # 0 = '='
+  # 1 = '>'
+  # 2 = '<'
+  vercomp $version "1.2.1"
+  versioncomparator=$?
+
+  # Use older download location for versions <= 1.2.1
+  if [[ $versioncomparator = 0 ]] || [[ $versioncomparator = 2 ]]; then
+    protocol="https"
+    domain="go.googlecode.com"
+    path="files"
+  fi
+
+  download_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}.tar.gz"
 
   if [[ "$platform" = "darwin" ]]; then
     OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
     if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
-      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.6.tar.gz"
+      alternate_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}-osx10.6.tar.gz"
     else
-      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.8.tar.gz"
+      alternate_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}-osx10.8.tar.gz"
     fi
   fi
+
+  echo "chgo: downloading Go from:"
+  echo $download_url
+  echo $alternate_url
 
   ( \
     ( \
@@ -120,6 +143,11 @@ function chgo()
 # Version comparison shamelessly stolen from Dennis Williamson
 # http://stackoverflow.com/users/26428/dennis-williamson
 # http://stackoverflow.com/a/4025065/339727
+#
+# Returns:
+# 0 = '='
+# 1 = '>'
+# 2 = '<'
 function vercomp ()
 {
     if [[ $1 == $2 ]]
