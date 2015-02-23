@@ -32,15 +32,16 @@ function chgo_install()
   else                                  arch="386"
   fi
 
-  download_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}.tar.gz"
+  base_url="https://storage.googleapis.com/golang/go"
+  download_url="${base_url}${version}.${platform}-${arch}.tar.gz"
 
   if [[ "$platform" = "darwin" ]]; then
     OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
     if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
-      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.6.tar.gz"
+      alternate_url="${base_url}${version}.${platform}-${arch}-osx10.6.tar.gz"
     else
-      alternate_url="https://go.googlecode.com/files/go${version}.${platform}-${arch}-osx10.8.tar.gz"
+      alternate_url="${base_url}${version}.${platform}-${arch}-osx10.8.tar.gz"
     fi
   fi
 
