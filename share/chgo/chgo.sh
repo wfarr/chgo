@@ -37,20 +37,6 @@ function chgo_install()
   protocol="https"
   domain="storage.googleapis.com"
   path="golang"
-
-  # Check if we're using 1.2.1 or earlier which has a different download location
-  # 0 = '='
-  # 1 = '>'
-  # 2 = '<'
-  vercomp $version "1.2.1"
-  versioncomparator=$?
-
-  # Use older download location for versions <= 1.2.1
-  if [[ $versioncomparator = 0 ]] || [[ $versioncomparator = 2 ]]; then
-    domain="go.googlecode.com"
-    path="files"
-  fi
-
   download_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}.tar.gz"
 
   if [[ "$platform" = "darwin" ]]; then
@@ -138,44 +124,4 @@ function chgo()
       chgo_use "$match" "$*"
       ;;
   esac
-}
-
-# Version comparison shamelessly stolen from Dennis Williamson
-# http://stackoverflow.com/users/26428/dennis-williamson
-# http://stackoverflow.com/a/4025065/339727
-#
-# Returns:
-# 0 = '='
-# 1 = '>'
-# 2 = '<'
-function vercomp ()
-{
-    if [[ $1 == $2 ]]
-    then
-        return 0
-    fi
-    local IFS=.
-    local i ver1=($1) ver2=($2)
-    # fill empty fields in ver1 with zeros
-    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
-    do
-        ver1[i]=0
-    done
-    for ((i=0; i<${#ver1[@]}; i++))
-    do
-        if [[ -z ${ver2[i]} ]]
-        then
-            # fill empty fields in ver2 with zeros
-            ver2[i]=0
-        fi
-        if ((10#${ver1[i]} > 10#${ver2[i]}))
-        then
-            return 1
-        fi
-        if ((10#${ver1[i]} < 10#${ver2[i]}))
-        then
-            return 2
-        fi
-    done
-    return 0
 }
