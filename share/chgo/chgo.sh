@@ -1,4 +1,5 @@
-CHGO_ROOT=$(cd "$(dirname $BASH_SOURCE[@])"/../.. && pwd)
+SCRIPT_SOURCE=`dirname "${BASH_SOURCE:-$0}"`
+CHGO_ROOT=$(cd "$SCRIPT_SOURCE"/../.. && pwd)
 CHGO_VERSION="0.3.7"
 GOES=()
 
