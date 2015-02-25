@@ -32,18 +32,39 @@ function chgo_install()
   else                                  arch="386"
   fi
 
-  base_url="https://storage.googleapis.com/golang/go"
-  download_url="${base_url}${version}.${platform}-${arch}.tar.gz"
+  # Default settings for new download location (1.2.2+)
+  protocol="https"
+  domain="storage.googleapis.com"
+  path="golang"
+
+  # Check if we're using 1.2.1 or earlier which has a different download location
+  # 0 = '='
+  # 1 = '>'
+  # 2 = '<'
+  vercomp $version "1.2.1"
+  versioncomparator=$?
+
+  # Use older download location for versions <= 1.2.1
+  if [[ $versioncomparator = 0 ]] || [[ $versioncomparator = 2 ]]; then
+    domain="go.googlecode.com"
+    path="files"
+  fi
+
+  download_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}.tar.gz"
 
   if [[ "$platform" = "darwin" ]]; then
     OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
     if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
-      alternate_url="${base_url}${version}.${platform}-${arch}-osx10.6.tar.gz"
+      alternate_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}-osx10.6.tar.gz"
     else
-      alternate_url="${base_url}${version}.${platform}-${arch}-osx10.8.tar.gz"
+      alternate_url="${protocol}://${domain}/${path}/go${version}.${platform}-${arch}-osx10.8.tar.gz"
     fi
   fi
+
+  echo "chgo: downloading Go from:"
+  echo $download_url
+  echo $alternate_url
 
   ( \
     ( \
@@ -116,4 +137,44 @@ function chgo()
       chgo_use "$match" "$*"
       ;;
   esac
+}
+
+# Version comparison shamelessly stolen from Dennis Williamson
+# http://stackoverflow.com/users/26428/dennis-williamson
+# http://stackoverflow.com/a/4025065/339727
+#
+# Returns:
+# 0 = '='
+# 1 = '>'
+# 2 = '<'
+function vercomp ()
+{
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
 }
