@@ -35,8 +35,8 @@ function chgo_install()
 
   # Default settings for new download location (1.2.2+)
   protocol="https"
-  domain="golang.org"
-  download_path="dl"
+  domain="storage.googleapis.com"
+  download_path="golang"
   download_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}.tar.gz"
 
   if [[ "$platform" = "darwin" && ${version} < 1.4.3 ]]; then
