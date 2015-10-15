@@ -35,11 +35,11 @@ function chgo_install()
 
   # Default settings for new download location (1.2.2+)
   protocol="https"
-  domain="storage.googleapis.com"
-  download_path="golang"
+  domain="golang.org"
+  download_path="dl"
   download_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}.tar.gz"
 
-  if [[ "$platform" = "darwin" ]]; then
+  if [[ "$platform" = "darwin" && ${version} < 1.4.3 ]]; then
     OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
     if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
