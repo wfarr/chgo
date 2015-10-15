@@ -42,7 +42,7 @@ function chgo_install()
   if [[ "$platform" = "darwin" && ${version} < 1.4.3 ]]; then
     OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
-    if !(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
+    if (echo $OSX_VERSION | egrep '10\.6|10\.7'); then
       alternate_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}-osx10.6.tar.gz"
     else
       alternate_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}-osx10.8.tar.gz"
