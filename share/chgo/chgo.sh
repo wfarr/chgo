@@ -68,11 +68,10 @@ function chgo_install()
       echo "chgo: unable to install Go \`${version}'" >&2
       echo "chgo: see ${logfile} for details" >&2
       return 1
-    } && \
-    {
-      rm $logfile
-      echo "chgo: installed ${version} to ${installdir}"
     }
+
+    rm $logfile
+    echo "chgo: installed ${version} to ${installdir}"
 
   GOES+=($installdir)
 }
