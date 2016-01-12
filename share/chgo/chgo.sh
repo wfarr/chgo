@@ -26,38 +26,41 @@ function chgo_install()
   installdir=$CHGO_ROOT/versions/$version
   logfile=$CHGO_ROOT/tmp/$version-$(date "+%s").log
 
-  mkdir -p $installdir
   platform="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
   if [ "$(uname -m)" = "x86_64" ]; then arch="amd64"
-  else                                  arch="386"
+    else                                arch="386"
   fi
 
   # Default settings for new download location (1.2.2+)
   protocol="https"
   domain="storage.googleapis.com"
-  download_path="golang"
-  download_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}.tar.gz"
+  url_path="golang"
+  download_url="${protocol}://${domain}/${url_path}/go${version}.${platform}-${arch}.tar.gz"
 
-  if [[ "$platform" = "darwin" && ${version} < 1.4.3 ]]; then
-    OSX_VERSION=`sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk ' { print $1; } '`
 
-    if (echo $OSX_VERSION | egrep '10\.6|10\.7'); then
-      alternate_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}-osx10.6.tar.gz"
+  if [[ "$platform" = "darwin" ]]; then
+    OSX_VERSION=$(sw_vers | grep ProductVersion | cut -f 2 -d ':'  | awk '{ print $1; }')
+
+    if $(echo $OSX_VERSION | egrep '10\.6|10\.7'); then
+      alternate_url="${protocol}://${domain}/${url_path}/go${version}.${platform}-${arch}-osx10.6.tar.gz"
+      echo $alternate_url
+
+    elif $(echo $OSX_VERSION | egrep '10\.8'); then
+      alternate_url="${protocol}://${domain}/${url_path}/go${version}.${platform}-${arch}-osx10.8.tar.gz"
+      echo $alternate_url
     else
-      alternate_url="${protocol}://${domain}/${download_path}/go${version}.${platform}-${arch}-osx10.8.tar.gz"
+      echo $download_url
     fi
   fi
 
-  echo "chgo: downloading Go from:"
-  echo $download_url
-  echo $alternate_url
+  mkdir -p "${installdir}"
 
   ( \
     ( \
       (curl -v -f $download_url) || (curl -v -f $alternate_url) \
     ) | \
-    tar zxv --strip-components 1 -C $installdir; exit "${PIPESTATUS[0]}" \
+     tar zxv --strip-components 1 -C $installdir; [[ "${PIPESTATUS[0]}" != 0 ]] && exit 1 \
   ) 2>$logfile >$logfile || \
     {
       rm -rf $installdir
@@ -67,8 +70,8 @@ function chgo_install()
       return 1
     }
 
-  rm $logfile
-  echo "chgo: installed ${version} to ${installdir}"
+    rm $logfile
+    echo "chgo: installed ${version} to ${installdir}"
 
   GOES+=($installdir)
 }
@@ -110,8 +113,12 @@ function chgo()
       done
 
       if [ -z "$match" ]; then
-        echo "chgo: $1 not installed, trying to install" >&2
-
+        if $(echo "${1}" | egrep -q -m1 '([0-9]{1,}\.)+[0-9]{1,}'); then
+          echo "chgo: $1 not installed, trying to install" >&2
+        else
+          echo "chgo: $1 doesn't seems to be a version number (matching '([0-9]{1,}\.)+[0-9]{1,}')" >&2
+          return 1
+        fi
         if [ -n "$CHGO_SKIP_AUTO_INSTALL" ]; then
           return 1
         else
